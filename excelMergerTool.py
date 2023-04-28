@@ -4,9 +4,10 @@ from openpyxl import load_workbook
 import openpyxl as xl
 from geteData import get_data
 import base64
+from openpyxl.styles import PatternFill, Side, Border
 
 
-def excelMergerTool(base64String, OCRs):
+def excelMergerTool(base64String, OCRs, fileName):
     newWorkbook = xl.Workbook()
     # default_sheet = newWorkbook['Sheet']
     del newWorkbook["Sheet"]
@@ -29,5 +30,13 @@ def excelMergerTool(base64String, OCRs):
                 new_sheet.cell(row=x + 1, column=y + 1).value = str(
                     oldWorksheet.cell(row=x + 1, column=y + 1).value
                 )
+                new_fill = PatternFill(
+                    start_color=oldWorksheet.cell(
+                        row=x + 1, column=y + 1
+                    ).fill.start_color,
+                    end_color=oldWorksheet.cell(row=x + 1, column=y + 1).fill.end_color,
+                    fill_type=oldWorksheet.cell(row=x + 1, column=y + 1).fill.fill_type,
+                )
+                new_sheet.cell(row=x + 1, column=y + 1).fill = new_fill
 
-    newWorkbook.save("example1.xlsx")
+    newWorkbook.save(f"{fileName}.xlsx")

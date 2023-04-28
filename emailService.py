@@ -4,7 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
 
-def sendEmailService(listEmail):
+def sendEmailService(listEmail, fileName):
     # Set up SMTP server and login credentials
     smtp_server = "smtpdm-ap-southeast-1.aliyun.com"
     smtp_port = 80
@@ -25,10 +25,10 @@ def sendEmailService(listEmail):
     msg.attach(MIMEText(body, "plain"))
 
     # Attach a file (optional)
-    with open("example1.xlsx", "rb") as f:
+    with open(f"{fileName}.xlsx", "rb") as f:
         attachment = MIMEApplication(f.read(), _subtype="xlsx")
         attachment.add_header(
-            "Content-Disposition", "attachment", filename="example.xlsx"
+            "Content-Disposition", "attachment", filename=f"{fileName}.xlsx"
         )
         msg.attach(attachment)
 

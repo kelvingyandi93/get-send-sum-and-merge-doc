@@ -4,6 +4,7 @@
 
 from pathlib import Path
 import datetime as dt
+import time
 from tkcalendar import Calendar
 
 from Auth import auth_token
@@ -14,35 +15,66 @@ from emailService import sendEmailService
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, StringVar
+from tkinter import Tk, Canvas, Button, PhotoImage
 import tkinter as tk
 
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\kelvin.g'yandi\Desktop\build\assets\frame0")
 
-sum = []
-errordata = []
-myList = []
-statusData = "Not ready"
-
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 
-def show_calendar_1():
+window = Tk()
+
+window.geometry("580x506")
+window.configure(bg="#FFFFFF")
+
+sum = []
+errordata = []
+myList = []
+statusData = "Not ready"
+OCR_SUM = [0, 0, 0, 0, 0]
+OCRs = ["OCR_STNK", "OCR_KTP", "OCR_NPWP", "OCR_BPKB", "OCR_KK"]
+button_image_on = PhotoImage(file=relative_to_assets("button_6.png"))
+button_image_off = PhotoImage(file=relative_to_assets("button_5.png"))
+button_image_send_data = PhotoImage(file=relative_to_assets("button_4.png"))
+button_image_get_data = PhotoImage(file=relative_to_assets("button_3.png"))
+button_image_shwo_calendar_to = PhotoImage(file=relative_to_assets("button_2.png"))
+button_image_show_calendar_from = PhotoImage(file=relative_to_assets("button_1.png"))
+
+height_text_ocr = 0
+height1_sum_ocr = 0
+
+date_1 = str(dt.date.today())
+date_2 = str(dt.date.today())
+
+
+def show_calendar_From():
     def select_date():
         date = cal.selection_get()
         update_text1(date.strftime(" %Y-%m-%d"))
-        frame_calendar_1.pack_forget()
+        frame_calendar_From.pack_forget()
 
-    frame_calendar_1 = tk.Frame(window)
-    frame_calendar_1.pack(fill="both", expand=True)
-    cal = Calendar(frame_calendar_1, selectmode="day", year=2023, month=4, day=22)
+    def cancel():
+        frame_calendar_From.pack_forget()
+
+    frame_calendar_From = tk.Frame(window)
+    frame_calendar_From.pack(fill="both", expand=True)
+
+    cal = Calendar(
+        frame_calendar_From,
+        selectmode="day",
+        year=dt.datetime.now().year,
+        month=dt.datetime.now().month,
+        day=dt.datetime.now().day,
+    )
     cal.pack(pady=20)
+
     button = tk.Button(
-        frame_calendar_1,
+        frame_calendar_From,
         text="Select Date",
         command=select_date,
         bg="#00BFFF",
@@ -53,22 +85,47 @@ def show_calendar_1():
         font=("Helvetica", 12),
         highlightthickness=0,
     )
+
+    button_cancel = tk.Button(
+        frame_calendar_From,
+        text="Cancel",
+        command=cancel,
+        bg="#00BFFF",
+        fg="#FFFFFF",
+        borderwidth=0,
+        padx=10,
+        pady=5,
+        font=("Helvetica", 12),
+        highlightthickness=0,
+    )
+
     button.pack(pady=10)
+    button_cancel.pack(pady=10)
 
 
-def show_calendar_2():
+def show_calendar_To():
     def select_date():
         date = cal.selection_get()
         update_text2(date.strftime(" %Y-%m-%d"))
-        frame_calendar_2.pack_forget()
+        frame_calendar_To.pack_forget()
         window.update()
 
-    frame_calendar_2 = tk.Frame(window)
-    frame_calendar_2.pack(fill="both", expand=True)
-    cal = Calendar(frame_calendar_2, selectmode="day", year=2023, month=4, day=22)
+    def cancel():
+        frame_calendar_To.pack_forget()
+
+    frame_calendar_To = tk.Frame(window)
+    frame_calendar_To.pack(fill="both", expand=True)
+
+    cal = Calendar(
+        frame_calendar_To,
+        selectmode="day",
+        year=dt.datetime.now().year,
+        month=dt.datetime.now().month,
+        day=dt.datetime.now().day,
+    )
     cal.pack(pady=20)
     button = tk.Button(
-        frame_calendar_2,
+        frame_calendar_To,
         text="Select Date",
         command=select_date,
         bg="#00BFFF",
@@ -79,7 +136,22 @@ def show_calendar_2():
         font=("Helvetica", 12),
         highlightthickness=0,
     )
+
+    button_cancel = tk.Button(
+        frame_calendar_To,
+        text="Cancel",
+        command=cancel,
+        bg="#00BFFF",
+        fg="#FFFFFF",
+        borderwidth=0,
+        padx=10,
+        pady=5,
+        font=("Helvetica", 12),
+        highlightthickness=0,
+    )
+
     button.pack(pady=10)
+    button_cancel.pack(pady=10)
 
 
 def update_text1(date):
@@ -92,15 +164,6 @@ def update_text2(date):
     global date_2
     date_2 = str(date)
     canvas.itemconfigure(date_text_to, text="Date From :        " + date_2)
-
-
-OCR_SUM = [0, 0, 0, 0, 0]
-
-
-def get_data_befor(dateFrom, dateTo):
-    destroy_sum_date([0, 0, 0, 0, 0])
-    destroy_data_status("Not ready")
-    get_data(dateFrom, dateTo)
 
 
 def get_data(dateFrom, dateTo):
@@ -125,10 +188,17 @@ def destroy_data_status(dataStatus):
     )
 
 
-def destroy_sum_date(datas):
+def destroy_sum_date(datas, dateFrom, dateTo):
+    status = False
+
     for i, val in enumerate(datas):
         var_name = f"sum{i}"
-        canvas.itemconfigure(globals()[var_name], text=val)
+        canvas.itemconfigure(globals()[var_name], text="a")
+        if i == 4:
+            status = True
+
+    if status == True:
+        get_data(dateFrom, dateTo)
 
 
 def update_sum_data(sumdata):
@@ -142,9 +212,8 @@ def update_error_status(errorData):
 
 
 def sendEmail(emailList):
-    # print(statusData)
     if len(emailList) != 0 and statusData == "Ready":
-        sendEmailService(emailList)
+        sendEmailService(emailList, f"data penggunaan {date_1} / {date_2}")
         print("Data send")
     else:
         print("data is not ready or there some error")
@@ -152,9 +221,6 @@ def sendEmail(emailList):
 
 def update_data_status(dataStatus):
     canvas.itemconfig(status_Data, text=dataStatus)
-
-
-OCRs = ["OCR_STNK", "OCR_KTP", "OCR_NPWP", "OCR_BPKB", "OCR_KK"]
 
 
 def toggle_image(button, value, text, i):
@@ -176,15 +242,6 @@ def toggle_image(button, value, text, i):
         print(myList)
 
 
-window = Tk()
-
-window.geometry("580x506")
-window.configure(bg="#FFFFFF")
-
-
-button_image_on = PhotoImage(file=relative_to_assets("button_6.png"))
-button_image_off = PhotoImage(file=relative_to_assets("button_5.png"))
-
 canvas = Canvas(
     window,
     bg="#FFFFFF",
@@ -198,74 +255,67 @@ canvas = Canvas(
 canvas.place(x=0, y=0)
 
 
-button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
-button_1 = Button(
-    image=button_image_1,
+button_show_calendar_from = Button(
+    image=button_image_show_calendar_from,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: show_calendar_2(),
+    command=lambda: show_calendar_To(),
     relief="flat",
 )
-button_1.place(x=28.0, y=120.0, width=216.0, height=41.0)
+button_show_calendar_from.place(x=28.0, y=120.0, width=216.0, height=41.0)
 
-button_image_2 = PhotoImage(file=relative_to_assets("button_2.png"))
-button_2 = Button(
-    image=button_image_2,
+button_show_calendar_to = Button(
+    image=button_image_shwo_calendar_to,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: show_calendar_1(),
+    command=lambda: show_calendar_From(),
     relief="flat",
 )
-button_2.place(x=28.0, y=51.0, width=216.0, height=41.0)
+button_show_calendar_to.place(x=28.0, y=51.0, width=216.0, height=41.0)
 
-button_image_3 = PhotoImage(file=relative_to_assets("button_3.png"))
-button_3 = Button(
-    image=button_image_3,
+button_get_data = Button(
+    image=button_image_get_data,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: get_data_befor(date_1, date_2),
+    command=lambda: get_data(date_1, date_2),
     relief="flat",
 )
-button_3.place(x=27.0, y=207.0, width=94.0, height=41.0)
+button_get_data.place(x=27.0, y=207.0, width=94.0, height=41.0)
 
-button_image_4 = PhotoImage(file=relative_to_assets("button_4.png"))
-button_4 = Button(
-    image=button_image_4,
+button_send_data = Button(
+    image=button_image_send_data,
     borderwidth=0,
     highlightthickness=0,
     command=lambda: sendEmail(myList),
     relief="flat",
 )
-button_4.place(x=150.0, y=205.0, width=94.0, height=41.0)
+button_send_data.place(x=150.0, y=205.0, width=94.0, height=41.0)
 
-height1 = 0
 
 for i, OCR in enumerate(OCRs):
     canvas.create_text(
         288.0,
-        110.0 + height1,
+        110.0 + height1_sum_ocr,
         anchor="nw",
         text=OCR + " :",
         fill="#000000",
         font=("Inter", 12 * -1),
     )
 
-    height1 += 31
-
-height2 = 0
+    height1_sum_ocr += 31
 
 for i, SUM in enumerate(OCR_SUM):
     var_name = f"sum{i}"
     globals()[var_name] = canvas.create_text(
         468.0,
-        110.0 + height2,
+        110.0 + height_text_ocr,
         anchor="nw",
         text=SUM,
         fill="#000000",
         font=("Inter", 12 * -1),
     )
 
-    height2 += 31
+    height_text_ocr += 31
 
 
 canvas.create_text(
@@ -306,9 +356,6 @@ canvas.create_text(
 )
 
 
-date_1 = str(dt.date.today())
-date_2 = str(dt.date.today())
-
 date_label = tk.Label(window, text="Select a date:")
 
 canvas.create_rectangle(267.5, 10.0, 267.5, 486.0, fill="#000000", outline="")
@@ -317,7 +364,7 @@ date_text_from = canvas.create_text(
     290.0,
     51.0,
     anchor="nw",
-    text="Date From :         " + date_1,
+    text="Date From :         " + str(dt.date.today()),
     fill="#000000",
     font=("Inter", 12 * -1),
 )
@@ -326,7 +373,7 @@ date_text_to = canvas.create_text(
     289.0,
     72.0,
     anchor="nw",
-    text="Date To      :          " + date_2,
+    text="Date To      :          " + str(dt.date.today()),
     fill="#000000",
     font=("Inter", 12 * -1),
 )
@@ -346,7 +393,8 @@ button_images = [button_image_off, button_image_off, button_image_off]
 
 space = 0
 
-buttons = []
+buttons_toggle = []
+
 for i, myEmail in enumerate(myEmails):
     canvas.create_text(
         325.0,
@@ -363,16 +411,14 @@ for i, myEmail in enumerate(myEmails):
         borderwidth=0,
         highlightthickness=0,
         command=lambda val=i, value=[0], text=myEmail: toggle_image(
-            buttons[val], value, text, val
+            buttons_toggle[val], value, text, val
         ),
         relief="flat",
     )
 
     globals()[var_name].place(x=287.0, y=324.0 + space, width=29.0, height=16.0)
     space += 25
-    buttons.append(
-        globals()[var_name]
-    )  # append the button to a list for later reference
+    buttons_toggle.append(globals()[var_name])
 
 window.resizable(False, False)
 window.mainloop()
